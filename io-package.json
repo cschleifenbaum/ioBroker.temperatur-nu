@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "temperatur-nu",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "news": {
       "0.0.1": {
         "en": "initial release",
@@ -50,7 +50,7 @@
     "license": "MIT",
     "platform": "Javascript/Node.js",
     "mode": "schedule",
-    "schedule": "* */5 * * *",
+    "schedule": "*/5 * * * *",
     "main": "main.js",
     "icon": "temperatur-nu.png",
     "enabled": true,
