@@ -1,5 +1,9 @@
 "use strict";
 
+const got = require('got')
+
+const packJson = require('./package.json');
+
 /*
  * Created with @iobroker/create-adapter v2.1.1
  */
@@ -22,137 +26,172 @@ class TemperaturNu extends utils.Adapter {
 			name: "temperatur-nu",
 		});
 		this.on("ready", this.onReady.bind(this));
-		this.on("stateChange", this.onStateChange.bind(this));
-		// this.on("objectChange", this.onObjectChange.bind(this));
-		// this.on("message", this.onMessage.bind(this));
 		this.on("unload", this.onUnload.bind(this));
+
+        this.client = got.extend({
+            headers: {
+                'user-agent': `ioBroker.temperatur-nu/${packJson.version}`
+            }
+        });
+        this.unloaded = false;
 	}
+
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(() => !this.unloaded && resolve(), ms));
+    }
+
+    async main() {
+        let apiParam = '';
+        if (
+            this.config.latitude !== undefined && this.config.longitude !== undefined &&
+            this.config.latitude !== null && this.config.longitude !== null &&
+            this.config.latitude !== '' && this.config.longitude !== '' &&
+            !isNaN(this.config.latitude) && !isNaN(this.config.longitude)
+        ) {
+            apiParam += `&lat=${this.config.latitude}&lon=${this.config.longitude}`;
+            const url = 'https://api.temperatur.nu/tnu_1.17.php?cli=tnu' + apiParam;
+            this.log.debug(`Get forecast from ${url}`)
+            let response;
+            try {
+                response = await this.client(url).json();
+            } catch (err) {
+                this.log.info(`Error while requesting data: ${err.message}`);
+                this.log.info('Please check your settings!');
+            }
+            if (response) {
+                await this.updateData(response);
+            }
+            this.log.info('Data updated.');
+        } else {
+            this.log.error('Longitude or Latitude not set correctly.');
+        }
+    }
+
+    async updateData(data) {
+        this.log.info(`Raw data: ${JSON.stringify(data)}`);
+
+        const device = 'station';
+        const now = Date.now();
+
+        await this.setObjectNotExistsAsync(device, {
+            type: 'device',
+            common: {
+                name: 'station',
+                role: 'wheater'
+            },
+            native: {},
+        });
+
+        await this.setObjectNotExistsAsync(device + '.title', {
+            type: 'state',
+            common: {
+                name: 'station title',
+                role: 'text',
+                read: true,
+                write: false,
+                unit: '',
+                type: 'string'
+            },
+            native: {},
+        });
+        // Update existing
+        this.extendObjectAsync(device + '.title', {
+            common: {
+                type: 'string',
+                role: 'text'
+            }
+        });
+        await this.setStateAsync(device + '.title', data.stations[0].title, true);
+
+
+        await this.setObjectNotExistsAsync(device + '.id', {
+            type: 'state',
+            common: {
+                name: 'station id',
+                role: 'text',
+                read: true,
+                write: false,
+                unit: '',
+                type: 'string'
+            },
+            native: {},
+        });
+        // Update existing
+        this.extendObjectAsync(device + '.id', {
+            common: {
+                type: 'string',
+                role: 'text'
+            }
+        });
+        await this.setStateAsync(device + '.id', data.stations[0].id, true);
+
+
+        await this.setObjectNotExistsAsync(device + '.temperature', {
+            type: 'state',
+            common: {
+                name: 'current temperature',
+                role: 'value.temperature',
+                read: true,
+                write: false,
+                unit: '°C',
+                type: 'number'
+            },
+            native: {},
+        });
+        // Update existing
+        this.extendObjectAsync(device + '.temperature', {
+            common: {
+                type: 'number',
+                role: 'value.temperature'
+            }
+        });
+        await this.setStateAsync(device + '.temperature', parseFloat(data.stations[0].temp), true);
+    }
 
 	/**
 	 * Is called when databases are connected and adapter received configuration.
 	 */
 	async onReady() {
-		// Initialize your adapter here
+	    if ((!this.config.longitude && this.config.longitude !== 0) || isNaN(this.config.longitude) ||
+            (!this.config.latitude && this.config.latitude !== 0) || isNaN(this.config.latitude)
+        ) {
+            this.log.info('longitude/longitude not set, get data from system');
+            try {
+                const state = await this.getForeignObjectAsync('system.config');
+                this.config.longitude = state.common.longitude;
+                this.config.latitude = state.common.latitude;
+                this.log.info(`system latitude: ${this.config.latitude} longitude: ${this.config.longitude}`);
+            } catch (err) {
+                this.log.error(err);
+            }
+        } else {
+            this.log.info(`longitude/longitude will be set by self-Config - longitude: ${this.config.longitude} latitude: ${this.config.latitude}`);
+        }
 
-		// The adapters config (in the instance object everything under the attribute "native") is accessible via
-		// this.config:
-		this.log.info("config option1: " + this.config.option1);
-		this.log.info("config option2: " + this.config.option2);
 
-		/*
-		For every state in the system there has to be also an object of type state
-		Here a simple template for a boolean variable named "testVariable"
-		Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
-		*/
-		await this.setObjectNotExistsAsync("testVariable", {
-			type: "state",
-			common: {
-				name: "testVariable",
-				type: "boolean",
-				role: "indicator",
-				read: true,
-				write: true,
-			},
-			native: {},
-		});
 
-		// In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
-		this.subscribeStates("testVariable");
-		// You can also add a subscription for multiple states. The following line watches all states starting with "lights."
-		// this.subscribeStates("lights.*");
-		// Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
-		// this.subscribeStates("*");
+        // now start fetching the actual data
+        const delay = Math.floor(Math.random() * 30000);
+        this.log.debug(`Delay execution by ${delay}ms to better spread API calls`);
+        await this.sleep(delay);
 
-		/*
-			setState examples
-			you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
-		*/
-		// the variable testVariable is set to true as command (ack=false)
-		await this.setStateAsync("testVariable", true);
+        // Force terminate after 5min
+        setTimeout(() => {
+            this.unloaded = true;
+            this.log.error('force terminate');
+            this.terminate ? this.terminate() : process.exit(0);
+        }, 300000);
 
-		// same thing, but the value is flagged "ack"
-		// ack should be always set to true if the value is received from or acknowledged from the target system
-		await this.setStateAsync("testVariable", { val: true, ack: true });
 
-		// same thing, but the state is deleted after 30s (getState will return null afterwards)
-		await this.setStateAsync("testVariable", { val: true, ack: true, expire: 30 });
+        await this.main();
+        this.log.debug('Update of data done, existing ...');
+        this.terminate ? this.terminate() : process.exit(0);
+    }
 
-		// examples for the checkPassword/checkGroup functions
-		let result = await this.checkPasswordAsync("admin", "iobroker");
-		this.log.info("check user admin pw iobroker: " + result);
-
-		result = await this.checkGroupAsync("admin", "admin");
-		this.log.info("check group user admin group admin: " + result);
-	}
-
-	/**
-	 * Is called when adapter shuts down - callback has to be called under any circumstances!
-	 * @param {() => void} callback
-	 */
 	onUnload(callback) {
-		try {
-			// Here you must clear all timeouts or intervals that may still be active
-			// clearTimeout(timeout1);
-			// clearTimeout(timeout2);
-			// ...
-			// clearInterval(interval1);
-
-			callback();
-		} catch (e) {
-			callback();
-		}
+        this.unloaded = true;
+        callback && callback();
 	}
-
-	// If you need to react to object changes, uncomment the following block and the corresponding line in the constructor.
-	// You also need to subscribe to the objects with `this.subscribeObjects`, similar to `this.subscribeStates`.
-	// /**
-	//  * Is called if a subscribed object changes
-	//  * @param {string} id
-	//  * @param {ioBroker.Object | null | undefined} obj
-	//  */
-	// onObjectChange(id, obj) {
-	// 	if (obj) {
-	// 		// The object was changed
-	// 		this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
-	// 	} else {
-	// 		// The object was deleted
-	// 		this.log.info(`object ${id} deleted`);
-	// 	}
-	// }
-
-	/**
-	 * Is called if a subscribed state changes
-	 * @param {string} id
-	 * @param {ioBroker.State | null | undefined} state
-	 */
-	onStateChange(id, state) {
-		if (state) {
-			// The state was changed
-			this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
-		} else {
-			// The state was deleted
-			this.log.info(`state ${id} deleted`);
-		}
-	}
-
-	// If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.
-	// /**
-	//  * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
-	//  * Using this method requires "common.messagebox" property to be set to true in io-package.json
-	//  * @param {ioBroker.Message} obj
-	//  */
-	// onMessage(obj) {
-	// 	if (typeof obj === "object" && obj.message) {
-	// 		if (obj.command === "send") {
-	// 			// e.g. send email or pushover or whatever
-	// 			this.log.info("send command");
-
-	// 			// Send response in callback if required
-	// 			if (obj.callback) this.sendTo(obj.from, obj.command, "Message received", obj.callback);
-	// 		}
-	// 	}
-	// }
-
 }
 
 if (require.main !== module) {

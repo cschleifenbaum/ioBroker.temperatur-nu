@@ -1,76 +1,77 @@
 {
-	"common": {
-		"name": "temperatur-nu",
-		"version": "0.0.1",
-		"news": {
-			"0.0.1": {
-				"en": "initial release",
-				"de": "Erstveröffentlichung",
-				"ru": "Начальная версия",
-				"pt": "lançamento inicial",
-				"nl": "Eerste uitgave",
-				"fr": "Première version",
-				"it": "Versione iniziale",
-				"es": "Versión inicial",
-				"pl": "Pierwsze wydanie",
-				"zh-cn": "首次出版"
-			}
-		},
-		"title": "temperatur.nu",
-		"titleLang": {
-			"en": "temperatur.nu",
-			"de": "temperatur.nu",
-			"ru": "температура.nu",
-			"pt": "temperatura.nu",
-			"nl": "temperatuur.nu",
-			"fr": "temperature.nu",
-			"it": "temperatura.nu",
-			"es": "temperatur.nu",
-			"pl": "temperatura.nu",
-			"zh-cn": "温度.nu"
-		},
-		"desc": {
-			"en": "Fetch temperature data from temperatur.nu",
-			"de": "Temperaturdaten von temperatur.nu abrufen",
-			"ru": "Получение данных о температуре с Temperature.nu",
-			"pt": "Buscar dados de temperatura de temperatur.nu",
-			"nl": "Haal temperatuurgegevens op van tempatur.nu",
-			"fr": "Récupérer les données de température de temperatur.nu",
-			"it": "Recupera i dati sulla temperatura da temperaturetur.nu",
-			"es": "Obtener datos de temperatura de temperatur.nu",
-			"pl": "Pobierz dane temperatury z temp.nu",
-			"zh-cn": "从 tempatur.nu 获取温度数据"
-		},
-		"authors": [
-			"cschleifenbaum <christoph@kdab.com>"
-		],
-		"keywords": [
-			"temperature"
-		],
-		"license": "MIT",
-		"platform": "Javascript/Node.js",
-		"main": "main.js",
-		"icon": "temperatur-nu.png",
-		"enabled": true,
-		"extIcon": "https://raw.githubusercontent.com/cschleifenbaum/ioBroker.temperatur-nu/main/admin/temperatur-nu.png",
-		"readme": "https://github.com/cschleifenbaum/ioBroker.temperatur-nu/blob/main/README.md",
-		"loglevel": "info",
-		"mode": "daemon",
-		"type": "weather",
-		"compact": true,
-		"connectionType": "cloud",
-		"dataSource": "poll",
-		"materialize": true,
-		"dependencies": [
-			{
-				"js-controller": ">=2.0.0"
-			}
-		]
-	},
-	"native": {
-		"option1": true,
-		"option2": "42"
-	},
-	"objects": [],
-	"instanceObjects": []
+  "common": {
+    "name": "temperatur-nu",
+    "version": "0.0.1",
+    "news": {
+      "0.0.1": {
+        "en": "initial release",
+        "de": "Erstveröffentlichung",
+        "ru": "Начальная версия",
+        "pt": "lançamento inicial",
+        "nl": "Eerste uitgave",
+        "fr": "Première version",
+        "it": "Versione iniziale",
+        "es": "Versión inicial",
+        "pl": "Pierwsze wydanie",
+        "zh-cn": "首次出版"
+      }
+    },
+    "title": "temperatur.nu",
+    "titleLang": {
+      "en": "temperatur.nu",
+      "de": "temperatur.nu",
+      "ru": "temperatur.nu",
+      "pt": "temperatur.nu",
+      "nl": "temperatur.nu",
+      "fr": "temperatur.nu",
+      "it": "temperatur.nu",
+      "es": "temperatur.nu",
+      "pl": "temperatur.nu",
+      "zh-cn": "temperatur.nu"
+    },
+    "desc": {
+      "en": "Fetch temperature data from temperatur.nu",
+      "de": "Temperaturdaten von temperatur.nu abrufen",
+      "ru": "Получение данных о температуре с temperatur.nu",
+      "pt": "Buscar dados de temperatura de temperatur.nu",
+      "nl": "Haal temperatuurgegevens op van tempatur.nu",
+      "fr": "Récupérer les données de température de temperatur.nu",
+      "it": "Recupera i dati sulla temperatura da temperatur.nu",
+      "es": "Obtener datos de temperatura de temperatur.nu",
+      "pl": "Pobierz dane temperatury z temperatur.nu",
+      "zh-cn": "从 temperatur.nu 获取温度数据"
+    },
+    "authors": [
+      "cschleifenbaum <christoph@kdab.com>"
+    ],
+    "keywords": [
+      "temperature"
+    ],
+    "license": "MIT",
+    "platform": "Javascript/Node.js",
+    "mode": "schedule",
+    "schedule": "* */5 * * *",
+    "main": "main.js",
+    "icon": "temperatur-nu.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/cschleifenbaum/ioBroker.temperatur-nu/main/admin/temperatur-nu.png",
+    "readme": "https://github.com/cschleifenbaum/ioBroker.temperatur-nu/blob/main/README.md",
+    "loglevel": "info",
+    "type": "weather",
+    "compact": true,
+    "connectionType": "cloud",
+    "dataSource": "poll",
+    "materialize": true,
+    "dependencies": [
+      {
+        "js-controller": ">=2.0.0"
+      }
+    ],
+  },
+  "native": {
+    "latitude": "",
+    "longitude": ""
+  },
+  "objects": [],
+  "instanceObjects": []
 }
