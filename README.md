@@ -23,6 +23,10 @@ Currently this modules let's you access one sensor by selecting latitude/longitu
 * Support handling more then one sensor
 * Pick sensors by id, not by location
 
+## Changelog
+### 0.1.0 (2022-05-15)
+* Initial release
+
 
 ## License
 MIT License
