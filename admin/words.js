@@ -14,28 +14,31 @@ systemDictionary = {
 		"pl": "Ustawienia adaptera dla temperatur-nu",
 		"zh-cn": "temperatur-nu的适配器设置"
 	},
-	"option1": {
-		"en": "option1",
-		"de": "Option 1",
-		"ru": "Опция 1",
-		"pt": "Opção 1",
-		"nl": "Optie 1",
-		"fr": "Option 1",
-		"it": "opzione 1",
-		"es": "Opción 1",
-		"pl": "opcja 1",
-		"zh-cn": "选项1"
+
+
+    "Longitude": {
+		"en": "Longitude",
+		"de": "Längengrad",
+		"ru": "Долгота",
+		"pt": "Longitude",
+		"nl": "Lengtegraad",
+		"fr": "Longitude",
+		"it": "Longitudine",
+		"es": "Longitud",
+		"pl": "Długość geograficzna",
+		"zh-cn": "经度"
 	},
-	"option2": {
-		"en": "option2",
-		"de": "Option 2",
-		"ru": "вариант 2",
-		"pt": "opção 2",
-		"nl": "Optie 2",
-		"fr": "Option 2",
-		"it": "opzione 2",
-		"es": "opcion 2",
-		"pl": "Opcja 2",
-		"zh-cn": "选项2"
+
+	"Latitude": {
+		"en": "Latitude",
+        "de": "Breitengrad",
+        "ru": "Широта",
+        "pt": "Latitude",
+        "nl": "Breedtegraad",
+        "fr": "Latitude",
+        "it": "Latitudine",
+        "es": "Latitud",
+        "pl": "Szerokość",
+        "zh-cn": "纬度"
 	}
 };
