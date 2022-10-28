@@ -1,6 +1,6 @@
 "use strict";
 
-const got = require('got')
+const axios = require('axios')
 
 const packJson = require('./package.json');
 
@@ -28,11 +28,6 @@ class TemperaturNu extends utils.Adapter {
 		this.on("ready", this.onReady.bind(this));
 		this.on("unload", this.onUnload.bind(this));
 
-        this.client = got.extend({
-            headers: {
-                'user-agent': `ioBroker.temperatur-nu/${packJson.version}`
-            }
-        });
         this.unloaded = false;
 	}
 
@@ -50,16 +45,20 @@ class TemperaturNu extends utils.Adapter {
         ) {
             apiParam += `&lat=${this.config.latitude}&lon=${this.config.longitude}`;
             const url = 'https://api.temperatur.nu/tnu_1.17.php?cli=tnu' + apiParam;
-            this.log.debug(`Get forecast from ${url}`)
+            this.log.info(`Get forecast from ${url}`)
             let response;
             try {
-                response = await this.client(url).json();
+                response = await axios.get(url, {headers: {'user-agent': `ioBroker.temperatur-nu/${packJson.version}`}});
             } catch (err) {
-                this.log.info(`Error while requesting data: ${err.message}`);
-                this.log.info('Please check your settings!');
+                this.log.error(`Error while requesting data: ${err.message}`);
+                this.log.error('Please check your settings!');
             }
             if (response) {
-                await this.updateData(response);
+                try {
+                    await this.updateData(response.data);
+                } catch (err) {
+                    this.log.error(`Error while updating data: ${err.message}`);
+                }
             }
             this.log.info('Data updated.');
         } else {
@@ -172,7 +171,7 @@ class TemperaturNu extends utils.Adapter {
 
         // now start fetching the actual data
         const delay = Math.floor(Math.random() * 30000);
-        this.log.debug(`Delay execution by ${delay}ms to better spread API calls`);
+        this.log.info(`Delay execution by ${delay}ms to better spread API calls`);
         await this.sleep(delay);
 
         // Force terminate after 5min
@@ -184,7 +183,7 @@ class TemperaturNu extends utils.Adapter {
 
 
         await this.main();
-        this.log.debug('Update of data done, existing ...');
+        this.log.info('Update of data done, existing ...');
         this.terminate ? this.terminate() : process.exit(0);
     }
 

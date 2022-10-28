@@ -1,6 +1,6 @@
 {
   "name": "iobroker.temperatur-nu",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Fetch temperature data from temperatur.nu",
   "author": {
     "name": "cschleifenbaum",
